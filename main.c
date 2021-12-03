@@ -55,7 +55,7 @@ Player *read_matchF(char *filename, Player *p)
     {
         if (strcmp(line, "match\n") == 0)
         {
-            printf("%s \n", line);
+            printf("%s", line);
             x = 1;
         }
         else if (x == 1)
@@ -95,6 +95,7 @@ Player *read_matchF(char *filename, Player *p)
                 c = strtok(NULL, ";");
                 printf("C %d\n", s);
             }
+            x=3;
         }
         else if (x == 3)
         { //scnd team
@@ -137,7 +138,12 @@ Player *read_matchF(char *filename, Player *p)
         }
         else if (x == 5)
         {
-            
+            if(strcmp(line, "red") == 0){
+                
+            }else if(strcmp(line, "blue") == 0){
+
+            }
+            x=0;
         }
         else
         {
