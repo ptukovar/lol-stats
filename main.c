@@ -45,12 +45,12 @@ void print_stats(Player *p)
         else
         {
             printf("ID:\t\t%d\n", p[i].id); 
-            printf("Nick: \t%s\n", p[i].nick);
+            printf("Nick:\t\t%s\n", p[i].nick);
             printf("Elo:\t\t%d\n", p[i].elo); 
             printf("Kills:\t\t%d\n", p[i].kills); 
-            printf("Assists:\t\t%d\n", p[i].assists); 
+            printf("Assists:\t%d\n", p[i].assists); 
             printf("Deaths:\t\t%d\n", p[i].deaths); 
-            printf("Matches:\t\t%d\n", p[i].matches); 
+            printf("Matches:\t%d\n", p[i].matches); 
             printf("Wins:\t\t%d\n", p[i].wins);
             printf("----------------------------\n");
         }
