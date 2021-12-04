@@ -6,7 +6,14 @@ Player *read_nicksF(char *filename, Player *p)
     int id, i = 0;
     for (int j = 0; j < max_players; j++)
     {
-        p[j].id = -1;
+        p[j].id = -1;  
+        strcpy(p[j].nick,"");
+        p[j].elo=0;
+        p[j].kills=0;
+        p[j].assists=0;
+        p[j].deaths=0;
+        p[j].matches=0;
+        p[j].wins=0;
     }
     nicksF = fopen(filename, "rt");
     if (nicksF == NULL)
@@ -19,16 +26,15 @@ Player *read_nicksF(char *filename, Player *p)
     {
         temp = strtok(line, ",");
         id = atoi(temp);
-        p[i].id = id;
+        p[id].id = id;
 
         temp = strtok(NULL, "\n");
-        strcpy(p[i].nick, temp);
-        i++;
+        strcpy(p[id].nick, temp);
     }
     fclose(nicksF);
     return p;
 }
-void print_nicks(Player *p)
+void print_stats(Player *p)
 {
     int x = 0, y = 0;
     for (int i = 0; i < max_players; i++)
@@ -38,118 +44,97 @@ void print_nicks(Player *p)
         }
         else
         {
-            printf("Nick:\t%s\tId: %d\n", p[i].nick, p[i].id);
+            printf("ID:\t\t%d\n", p[i].id); 
+            printf("Nick: \t%s\n", p[i].nick);
+            printf("Elo:\t\t%d\n", p[i].elo); 
+            printf("Kills:\t\t%d\n", p[i].kills); 
+            printf("Assists:\t\t%d\n", p[i].assists); 
+            printf("Deaths:\t\t%d\n", p[i].deaths); 
+            printf("Matches:\t\t%d\n", p[i].matches); 
+            printf("Wins:\t\t%d\n", p[i].wins);
+            printf("----------------------------\n");
         }
     }
 }
 Player *read_matchF(char *filename, Player *p)
 {
     FILE *fhistory;
-    Match *m[max_players];
     fhistory = fopen(filename, "rt");
-    int id = 0;
     char *temp, *a, *b, *c;
-    char line[60];
-    int x = 0, s = 0;
-    while (fgets(line, sizeof(line), fhistory) != NULL)
+    char line[256] = {0};
+    unsigned redid[3] = {0};
+    unsigned redk[3] = {0};
+    unsigned reda[3] = {0};
+    unsigned redd[3] = {0};
+    unsigned blueid[3] = {0};
+    unsigned bluek[3] = {0};
+    unsigned bluea[3] = {0};
+    unsigned blued[3] = {0};
+    char winner[256] = {0};
+    do
     {
-        if (strcmp(line, "match\n") == 0)
+        fscanf(fhistory, "%s\n", line);
+        if (strcmp(line, "match") != 0)
         {
-            printf("%s", line);
-            x = 1;
+            printf("invalid format\n");
+            exit(1);
         }
-        else if (x == 1)
+        fscanf(fhistory, "%u,%u,%u\n", &redid[0], &redid[1], &redid[2]);
+        fscanf(fhistory, "%u;%u;%u,%u;%u;%u,%u;%u;%u\n",
+               &redk[0], &reda[0], &redd[0],
+               &redk[1], &reda[1], &redd[1],
+               &redk[2], &reda[2], &redd[2]);
+        fscanf(fhistory, "%u,%u,%u\n", &blueid[0], &blueid[1], &blueid[2]);
+        fscanf(fhistory, "%u;%u;%u,%u;%u;%u,%u;%u;%u\n",
+               &bluek[0], &bluea[0], &blued[0],
+               &bluek[1], &bluea[1], &blued[1],
+               &bluek[2], &bluea[2], &blued[2]);
+        fscanf(fhistory, "%s\n", winner);
+        int j = 0;
+        for (int i = 0; i < max_players; i++)
         {
-            temp = strtok(line, ",");
-            for (int i = 0; i < 3; i++)
+            if (j <= 3)
             {
-                id = atoi(temp);
-                temp = strtok(NULL, ",");
-                printf("ID: %d\n", id);
+                if (p[i].id == redid[j])
+                {
+                    p[i].kills += redk[j];
+                    p[i].assists += reda[j];
+                    p[i].deaths += redd[j];
+                    if (strcmp(winner, "red") == 0)
+                    {
+                        p[i].wins += 1;
+                    }
+                    else
+                    {
+                        p[i].matches += 1;
+                    }
+                    j++;
+                }
             }
-            x = 2;
         }
-        else if (x == 2)
+        j = 0;
+        for (int i = 0; i < max_players; i++)
         {
-            a = strtok(line, ",");
-            b = strtok(NULL, ",");
-            c = strtok(NULL, ",");
-            a = strtok(a, ";");
-            for (int i = 0; i < 3; i++)
+            if (j <= 3)
             {
-                s = atoi(a);
-                a = strtok(NULL, ";");
-                printf("A %d\n", s);
+                if (p[i].id == blueid[j])
+                {
+                    p[i].kills += bluek[j];
+                    p[i].assists += bluea[j];
+                    p[i].deaths += blued[j];
+                    if (strcmp(winner, "blue") == 0)
+                    {
+                        p[i].wins += 1;
+                    }
+                    else
+                    {
+                        p[i].matches += 1;
+                    }
+                    j++;
+                }
             }
-            b = strtok(b, ";");
-            for (int i = 0; i < 3; i++)
-            {
-                s = atoi(b);
-                b = strtok(NULL, ";");
-                printf("B %d\n", s);
-            }
-            c = strtok(c, ";");
-            for (int i = 0; i < 3; i++)
-            {
-                s = atoi(c);
-                c = strtok(NULL, ";");
-                printf("C %d\n", s);
-            }
-            x=3;
         }
-        else if (x == 3)
-        { //scnd team
-            temp = strtok(line, ",");
-            for (int i = 0; i < 3; i++)
-            {
-                id = atoi(temp);
-                temp = strtok(NULL, ",");
-                printf("ID: %d\n", id);
-            }
-            x = 4;
-        }
-        else if (x == 4)
-        { //scnd team
-            a = strtok(line, ",");
-            b = strtok(NULL, ",");
-            c = strtok(NULL, ",");
-            a = strtok(a, ";");
-            for (int i = 0; i < 3; i++)
-            {
-                s = atoi(a);
-                a = strtok(NULL, ";");
-                printf("A %d\n", s);
-            }
-            b = strtok(b, ";");
-            for (int i = 0; i < 3; i++)
-            {
-                s = atoi(b);
-                b = strtok(NULL, ";");
-                printf("B %d\n", s);
-            }
-            c = strtok(c, ";");
-            for (int i = 0; i < 3; i++)
-            {
-                s = atoi(c);
-                c = strtok(NULL, ";");
-                printf("C %d\n", s);
-            }
-            x = 5;
-        }
-        else if (x == 5)
-        {
-            if(strcmp(line, "red") == 0){
-                
-            }else if(strcmp(line, "blue") == 0){
-
-            }
-            x=0;
-        }
-        else
-        {
-            break;
-        }
-    }
+    } while (!feof(fhistory));
     fclose(fhistory);
 }
 
@@ -162,6 +147,6 @@ int main(int argc, char *argv[])
     char *fnamen = "players.txt"; //argv[2];
     read_nicksF(fnamen, p);
     read_matchF(fnameh, p);
-    //print_nicks(p);
+    print_stats(p);
     return 0;
 }
