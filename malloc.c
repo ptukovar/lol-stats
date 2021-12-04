@@ -4,18 +4,18 @@ Player *read_fnicks(char *filename, Player *p)
     FILE *fnicks;
     char line[60], *temp;
     char nick[20] = {0};
-    unsigned id=0; 
+    unsigned id = 0;
     int i = 0;
     for (int j = 0; j < max_players; j++)
     {
-        p[j].id = -1;  
-        strcpy(p[j].nick,"");
-        p[j].elo=0;
-        p[j].kills=0;
-        p[j].assists=0;
-        p[j].deaths=0;
-        p[j].matches=0;
-        p[j].wins=0;
+        p[j].id = -1;
+        strcpy(p[j].nick, "");
+        p[j].elo = 0;
+        p[j].kills = 0;
+        p[j].assists = 0;
+        p[j].deaths = 0;
+        p[j].matches = 0;
+        p[j].wins = 0;
     }
     fnicks = fopen(filename, "rt");
     if (fnicks == NULL)
@@ -24,11 +24,12 @@ Player *read_fnicks(char *filename, Player *p)
         exit(-1);
     }
 
-    do{
+    do
+    {
         fscanf(fnicks, "%u,%s\n", &id, nick);
-        p[id].id=id;
-        strcpy(p[id].nick,nick);
-    }while (!feof(fnicks));
+        p[id].id = id;
+        strcpy(p[id].nick, nick);
+    } while (!feof(fnicks));
     fclose(fnicks);
     return p;
 }
@@ -101,6 +102,7 @@ Player *read_matchF(char *filename, Player *p)
                     if (strcmp(winner, "blue") == 0)
                     {
                         p[i].wins += 1;
+                        p[i].matches += 1;
                     }
                     else
                     {
@@ -112,25 +114,25 @@ Player *read_matchF(char *filename, Player *p)
         }
     } while (!feof(fhistory));
     free(line);
-    line=NULL;
+    line = NULL;
     free(redid);
-    redid=NULL;
+    redid = NULL;
     free(redk);
-    redk=NULL;
+    redk = NULL;
     free(reda);
-    reda=NULL;
+    reda = NULL;
     free(redd);
-    redd=NULL;
+    redd = NULL;
     free(blueid);
-    blueid=NULL;
+    blueid = NULL;
     free(bluek);
-    bluek=NULL;
+    bluek = NULL;
     free(bluea);
-    bluea=NULL;
+    bluea = NULL;
     free(blued);
-    blued=NULL;
+    blued = NULL;
     free(winner);
-    winner=NULL;
+    winner = NULL;
     fclose(fhistory);
 }
 void print_stats(Player *p)
@@ -143,13 +145,13 @@ void print_stats(Player *p)
         }
         else
         {
-            printf("ID:\t\t%d\n", p[i].id); 
+            printf("ID:\t\t%d\n", p[i].id);
             printf("Nick:\t\t%s\n", p[i].nick);
-            printf("Elo:\t\t%d\n", p[i].elo); 
-            printf("Kills:\t\t%d\n", p[i].kills); 
-            printf("Assists:\t%d\n", p[i].assists); 
-            printf("Deaths:\t\t%d\n", p[i].deaths); 
-            printf("Matches:\t%d\n", p[i].matches); 
+            printf("Elo:\t\t%d\n", p[i].elo);
+            printf("Kills:\t\t%d\n", p[i].kills);
+            printf("Assists:\t%d\n", p[i].assists);
+            printf("Deaths:\t\t%d\n", p[i].deaths);
+            printf("Matches:\t%d\n", p[i].matches);
             printf("Wins:\t\t%d\n", p[i].wins);
             printf("----------------------------\n");
         }
