@@ -10,8 +10,8 @@ Player *read_nicksF(char *filename, Player *p)
     fnicks = fopen(filename, "rt");
     if (fnicks == NULL)
     {
-        perror("Wrong file!");
-        exit(-1);
+        fprintf(stderr, "Error: File error!\n");
+        exit(EXIT_FAILURE);
     }
     while (!feof(fnicks))
     {
@@ -79,8 +79,8 @@ Player *read_matchF(char *filename, Player *p)
         fscanf(fhistory, "%s\n", line);
         if (strcmp(line, "match") != 0)
         {
-            printf("invalid format\n");
-            exit(1);
+            fprintf(stderr, "Error: File error!\n");
+            exit(EXIT_FAILURE);
         }
         fscanf(fhistory, "%u,%u,%u\n", &redid[0], &redid[1], &redid[2]);
         fscanf(fhistory, "%u;%u;%u,%u;%u;%u,%u;%u;%u\n",
