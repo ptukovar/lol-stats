@@ -17,7 +17,5 @@ int main(int argc, char *argv[])
         print_stats(fnameO,p);
     }
     
-    
-    
     return 0;
 }
