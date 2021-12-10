@@ -1,3 +1,5 @@
+# Project: League of Legends ELO rating
+
 all:
 	gcc main.c fce.c head.h -o lol-elo -lm -fsanitize=address
 exec:
