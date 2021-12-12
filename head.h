@@ -17,6 +17,8 @@ typedef struct
     int matches;
     int wins;
     float winrate;
+    int red;
+    int blue;
 } Player;
 
 Player *read_nicksF(char *filename, Player *p);
@@ -24,6 +26,6 @@ Player *read_matchF(char *filename, Player *p);
 int elo_calc(Player *p, unsigned id, unsigned en1, unsigned en2, unsigned en3, unsigned sa);
 char *division_calc(Player *p, unsigned id);
 Player *consstr(Player *p);
-void print_stats(char *filename,Player *p);
+void print_stats(char *filename, Player *p);
 
 #endif
