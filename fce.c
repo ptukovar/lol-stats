@@ -119,7 +119,7 @@ Player *read_matchF(char *filename, Player *p)
         {
             if (j <= 2)
             {
-                if (i == redid[j])
+                if ((unsigned)i == redid[j])
                 {
                     p[i].kills += redk[j];
                     p[i].assists += reda[j];
@@ -128,10 +128,11 @@ Player *read_matchF(char *filename, Player *p)
                     {
                         p[i].matches += 1;
                         p[i].wins += 1;
-                        float wi=0;
-                        wi=p[i].wins;
-                        float ma=0;
-                        ma=p[i].matches;
+                        p[i].red += 1;
+                        float wi = 0;
+                        wi = p[i].wins;
+                        float ma = 0;
+                        ma = p[i].matches;
                         p[i].winrate = (wi / ma) * 100;
                         p[i].elo = elo_calc(p, i, blueid[0], blueid[1], blueid[2], 1);
                         strcpy(div, division_calc(p, i));
@@ -139,15 +140,23 @@ Player *read_matchF(char *filename, Player *p)
                     }
                     else
                     {
-                        p[i].matches += 1;
-                        float wi=0;
-                        wi=p[i].wins;
-                        float ma=0;
-                        ma=p[i].matches;
-                        p[i].winrate = (wi / ma) * 100;
-                        p[i].elo = elo_calc(p, i, blueid[0], blueid[1], blueid[2], 0);
-                        strcpy(div, division_calc(p, i));
-                        strcpy(p[i].division, div);
+                        if (strcmp(winner, "blue") == 0)
+                        {
+                            p[i].matches += 1;
+                            float wi = 0;
+                            wi = p[i].wins;
+                            float ma = 0;
+                            ma = p[i].matches;
+                            p[i].winrate = (wi / ma) * 100;
+                            p[i].elo = elo_calc(p, i, blueid[0], blueid[1], blueid[2], 0);
+                            strcpy(div, division_calc(p, i));
+                            strcpy(p[i].division, div);
+                        }
+                        else
+                        {
+                            fprintf(stderr, "Error: Winner wrong format!\n");
+                            exit(EXIT_FAILURE);
+                        }
                     }
                     j++;
                 }
@@ -158,7 +167,7 @@ Player *read_matchF(char *filename, Player *p)
         {
             if (j <= 2)
             {
-                if (i == blueid[j])
+                if ((unsigned)i == blueid[j])
                 {
                     p[i].kills += bluek[j];
                     p[i].assists += bluea[j];
@@ -167,10 +176,11 @@ Player *read_matchF(char *filename, Player *p)
                     {
                         p[i].wins += 1;
                         p[i].matches += 1;
-                        float wi=0;
-                        wi=p[i].wins;
-                        float ma=0;
-                        ma=p[i].matches;
+                        p[i].blue += 1;
+                        float wi = 0;
+                        wi = p[i].wins;
+                        float ma = 0;
+                        ma = p[i].matches;
                         p[i].winrate = (wi / ma) * 100;
                         p[i].elo = elo_calc(p, i, redid[0], redid[1], redid[2], 1);
                         strcpy(div, division_calc(p, i));
@@ -178,15 +188,23 @@ Player *read_matchF(char *filename, Player *p)
                     }
                     else
                     {
-                        p[i].matches += 1;
-                        float wi=0;
-                        wi=p[i].wins;
-                        float ma=0;
-                        ma=p[i].matches;
-                        p[i].winrate = (wi / ma) * 100;
-                        p[i].elo = elo_calc(p, i, redid[0], redid[1], redid[2], 0);
-                        strcpy(div, division_calc(p, i));
-                        strcpy(p[i].division, div);
+                        if (strcmp(winner, "red") == 0)
+                        {
+                            p[i].matches += 1;
+                            float wi = 0;
+                            wi = p[i].wins;
+                            float ma = 0;
+                            ma = p[i].matches;
+                            p[i].winrate = (wi / ma) * 100;
+                            p[i].elo = elo_calc(p, i, redid[0], redid[1], redid[2], 0);
+                            strcpy(div, division_calc(p, i));
+                            strcpy(p[i].division, div);
+                        }
+                        else
+                        {
+                            fprintf(stderr, "Error: Winner wrong format!\n");
+                            exit(EXIT_FAILURE);
+                        }
                     }
                     j++;
                 }
@@ -214,6 +232,7 @@ Player *read_matchF(char *filename, Player *p)
     free(winner);
     winner = NULL;
     fclose(fhistory);
+    return p;
 }
 
 Player *consstr(Player *p)
@@ -228,13 +247,15 @@ Player *consstr(Player *p)
         p[j].assists = 0;
         p[j].deaths = 0;
         p[j].matches = 0;
-        p[j].winrate =0;
+        p[j].winrate = 0;
         p[j].wins = 0;
+        p[j].red = 0;
+        p[j].blue = 0;
     }
     return p;
 }
 
-void print_stats(char *filename,Player *p)
+void print_stats(char *filename, Player *p)
 {
     FILE *fout = fopen(filename, "w");
     fprintf(fout, "<!DOCTYPE html>\n");
@@ -244,6 +265,10 @@ void print_stats(char *filename,Player *p)
     fprintf(fout, "    <title>LOL-stats</title>\n");
     fprintf(fout, "</head>\n");
     fprintf(fout, "<style>\n");
+    fprintf(fout, "  body{\n");
+    fprintf(fout, "    max-width: max-content;\n");
+    fprintf(fout, "    margin: auto;\n");
+    fprintf(fout, "  }\n");
     fprintf(fout, "  .tab{\n");
     fprintf(fout, "    text-align: center;\n");
     fprintf(fout, "    border: 2px solid black;\n");
@@ -255,6 +280,15 @@ void print_stats(char *filename,Player *p)
     fprintf(fout, "  }\n");
     fprintf(fout, "  td{\n");
     fprintf(fout, "    border: 1px solid black;\n");
+    fprintf(fout, "  }\n");
+    fprintf(fout, "  tr,td,th{\n");
+    fprintf(fout, "    padding: 15px\n");
+    fprintf(fout, "  }\n");
+    fprintf(fout, "  tr:nth-child(even){\n");
+    fprintf(fout, "    background-color: #D6EEEE;\n");
+    fprintf(fout, "  }\n");
+    fprintf(fout, "  table{\n");
+    fprintf(fout, "    max-width\n");
     fprintf(fout, "  }\n");
     fprintf(fout, "</style>\n");
     fprintf(fout, "<body>\n");
@@ -269,6 +303,8 @@ void print_stats(char *filename,Player *p)
     fprintf(fout, "    <th>DEATHS</th>\n");
     fprintf(fout, "    <th>WIN RATE</th>\n");
     fprintf(fout, "    <th>WINS</th>\n");
+    fprintf(fout, "    <th>WINS AS RED</th>\n");
+    fprintf(fout, "    <th>WINS AS BLUE</th>\n");
     fprintf(fout, "    <th>MATCHES</th>\n");
     fprintf(fout, "  </tr>\n");
     int x = 0, y = 0;
@@ -289,6 +325,8 @@ void print_stats(char *filename,Player *p)
             fprintf(fout, "<td>%d</td>\n", p[i].deaths);
             fprintf(fout, "<td>%.2f%%</td>\n", p[i].winrate);
             fprintf(fout, "<td>%d</td>\n", p[i].wins);
+            fprintf(fout, "<td>%d</td>\n", p[i].red);
+            fprintf(fout, "<td>%d</td>\n", p[i].blue);
             fprintf(fout, "<td>%d</td>\n", p[i].matches);
         }
         fprintf(fout, "    </tr>\n");
