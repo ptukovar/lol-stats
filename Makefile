@@ -1,5 +1,5 @@
 # Project: League of Legends ELO rating
-# Author:  Marek Pukowiec
+# Author:  Ptukovar
 # Date:    12/10/2021
 all:
 	gcc main.c fce.c head.h -o lol-elo -lm -fsanitize=address
